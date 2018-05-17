@@ -39,8 +39,20 @@ public class WaterLevelChartView extends View {
     private float upperLimit;   //量程终点值
     private String unit;
 
+    public WaterLevelChartView(Context context) {
+        this(context, null);
+    }
+
     public WaterLevelChartView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
+
+    public WaterLevelChartView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context, attrs);
+    }
+
+    private void init(Context context, AttributeSet attrs) {
         currentTmp = new Paint();
         currentTmp.setAntiAlias(true);
         currentTmp.setTextSize(20);
@@ -76,7 +88,6 @@ public class WaterLevelChartView extends View {
         mPaintOther.setStrokeWidth(1);
 
     }
-
     /**
      * @param unit      单位
      * @param lower     量程最小值
@@ -123,6 +134,8 @@ public class WaterLevelChartView extends View {
         int y = m - a * ju;    //绘制的当前温度
         // 温度计 矩形
         canvas.drawRect(width - 20, 0, width + 20, m, mPaint);
+        //温度计 圆形
+        canvas.drawCircle(width, m + 25, 35, paintCircle);
         // 右侧三角形刻度 字体颜色
         // 水位过低
         if (tem1 >= lowerLimit && tem1 < lowTem) {
@@ -148,14 +161,14 @@ public class WaterLevelChartView extends View {
             // 圆形
             canvas.drawCircle(width, m + 25, 35, paintCircle);
             // 右侧三角形刻度
-            canvas.drawBitmap(bitmaplv, width + 40, y - bitmaplv.getHeight()
+            canvas.drawBitmap(bitmaplv, width + 20, y - bitmaplv.getHeight()
                     / 4, mPaint);
             // 当前温度字体
-            canvas.drawText(temp + unit, width + 40 + bitmaplv.getWidth() + 15,
+            canvas.drawText(temp + unit, width + 20 + bitmaplv.getWidth() + 5,
                     y + bitmaplv.getHeight() / 4, paintCircle);
-            canvas.drawText("当前温度", width + 40 + bitmaplv.getWidth() + 15 + 5,
+            canvas.drawText("当前温度", width + 20 + bitmaplv.getWidth() + 15 + 5,
                     y + bitmaplv.getHeight() / 2 + 10 + 5, currentTmp);
-        } else if ((tem1 + 0.1) >= topTem) {        //(tem1 + 0.1) >= topTem
+        } else if (tem1 >= topTem) {        //(tem1 + 0.1) >= topTem
 
             // 水位过高
             currentTmp.setColor(Color.parseColor("#497aed"));  //蓝色
@@ -187,7 +200,7 @@ public class WaterLevelChartView extends View {
                 if (i == 0) {
                     canvas.drawText(lowerLimit + unit, width - 7 - 70, rule + 4, textPaint);//TODO:这里可以加上单位
                 } else {
-                    lowerLimit += 5 * (num * 1.0f / 5 / part);
+                    lowerLimit += 5 * (num  / 5 / part);
                     canvas.drawText(df.format(lowerLimit) + unit, width - 7 - 70, rule + 4, textPaint);
                 }
 
