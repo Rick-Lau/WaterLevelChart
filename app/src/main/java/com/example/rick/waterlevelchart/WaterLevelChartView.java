@@ -53,6 +53,8 @@ public class WaterLevelChartView extends View {
     }
 
     private void init(Context context, AttributeSet attrs) {
+        //禁用硬件加速
+        disableHardwareAccelerated();
         currentTmp = new Paint();
         currentTmp.setAntiAlias(true);
         currentTmp.setTextSize(20);
@@ -88,6 +90,7 @@ public class WaterLevelChartView extends View {
         mPaintOther.setStrokeWidth(1);
 
     }
+
     /**
      * @param unit      单位
      * @param lower     量程最小值
@@ -146,9 +149,9 @@ public class WaterLevelChartView extends View {
             // 圆形
             canvas.drawCircle(width, m + 25, 35, paintCircle);
             // 右侧三角形刻度
-            canvas.drawBitmap(bitmaplan, width + 40, y - bitmaplan.getHeight()/ 2, mPaint);
+            canvas.drawBitmap(bitmaplan, width + 40, y - bitmaplan.getHeight() / 2, mPaint);
             // 当前温度字体
-            canvas.drawText(temp + unit,width + 40 + bitmaplan.getWidth() + 15,
+            canvas.drawText(temp + unit, width + 40 + bitmaplan.getWidth() + 15,
                     y + bitmaplan.getHeight() / 4, paintCircle);
             canvas.drawText("当前温度", width + 40 + bitmaplan.getWidth() + 15 + 5,
                     y + bitmaplan.getHeight() / 2 + 10 + 5, currentTmp);
@@ -200,7 +203,7 @@ public class WaterLevelChartView extends View {
                 if (i == 0) {
                     canvas.drawText(lowerLimit + unit, width - 7 - 70, rule + 4, textPaint);//TODO:这里可以加上单位
                 } else {
-                    lowerLimit += 5 * (num  / 5 / part);
+                    lowerLimit += 5 * (num / 5 / part);
                     canvas.drawText(df.format(lowerLimit) + unit, width - 7 - 70, rule + 4, textPaint);
                 }
 
@@ -209,6 +212,32 @@ public class WaterLevelChartView extends View {
             }
             rule = rule - m / (5 * part);
         }
-
     }
+
+    /**
+     * 禁用硬件加速.
+     * 原因:android自3.0引入了硬件加速，即使用GPU进行绘图,但它并不能完善的支持所有的绘图，
+     * 通常表现为内容(如Rect或Path)不可见，异常或渲染错误。所以类了保证图表的正常显示，强制禁用掉.
+     */
+    protected void disableHardwareAccelerated() {
+        //View.isHardwareAccelerated()
+        //Canvas.isHardwareAccelerated()
+
+        if (supportHardwareAccelerated()) {
+            //是否开启了硬件加速,如开启将其禁掉
+            if (!isHardwareAccelerated()) {
+                //setLayerType(View.LAYER_TYPE_NONE,null);  //LAYER_TYPE_SOFTWARE
+                setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
+        }
+    }
+
+    private boolean supportHardwareAccelerated() {
+        boolean result = true;
+        int currentVersion = android.os.Build.VERSION.SDK_INT;
+        //android 3.0 == android.os.Build.VERSION_CODES.HONEYCOMB
+        if (currentVersion < 11) result = false;
+        return result;
+    }
+
 }
